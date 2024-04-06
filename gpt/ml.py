@@ -11,7 +11,7 @@ with open('gpt/body.json', 'r', encoding='utf-8') as f:
     data = json.load(f)
 f.close()
 data['modelUri'] = "gpt://" + IAM_TOKEN + "/yandexgpt-lite"
-with open('body.json', 'w', encoding='utf-8') as f:
+with open('gpt/body.json', 'w', encoding='utf-8') as f:
     json.dump(data, f, ensure_ascii=False, indent=4)
 f.close()
 
@@ -22,14 +22,14 @@ headers = {
 
 def gpt(text):
     url = 'https://llm.api.cloud.yandex.net/foundationModels/v1/completion'
-    with open('body.json', 'r', encoding='utf-8') as f:
+    with open('gpt/body.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
     f.close()
     data['messages'][3]['text'] = text
-    with open('body.json', 'w', encoding='utf-8') as f:
+    with open('gpt/body.json', 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
     f.close()
-    with open('body.json', 'r', encoding='utf-8') as f:
+    with open('gpt/body.json', 'r', encoding='utf-8') as f:
         data = json.dumps(json.load(f))
     resp = requests.post(url, headers=headers, data=data)
 

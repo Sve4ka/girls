@@ -1,8 +1,9 @@
 #  здесь описываются реакции кнопок на нажатие
 
 from aiogram import types
-from pprint import pprint
 
+import gpt.ml
+import prog.creat_prod_fms
 import prog.keyboard_creat as kb
 import prog.static_text as txt
 from prog.command import dp
@@ -69,11 +70,8 @@ async def main_callback(call: types.CallbackQuery):
 
 
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith('shop_'))
-# @dp.callback_query_handler(text="shop_banana")
 async def main_callback(call: types.CallbackQuery):
-    # pprint(call.as_json())
-    # print(call.data.startswith("shop_"))
-    await call.message.edit_text(text=txt.SH + "\n", reply_markup=kb.shop_kb())
+    await call.message.edit_text(text=txt.SH + "\n" + call.data, reply_markup=kb.shop_kb())
 
 
 @dp.callback_query_handler(text="cancel_product")
@@ -84,5 +82,15 @@ async def main_callback(call: types.CallbackQuery):
 @dp.callback_query_handler(lambda callback_query: callback_query.data.startswith('product_'))
 @dp.callback_query_handler(text="product")
 async def main_callback(call: types.CallbackQuery):
-    print(call.as_json())
-    await call.message.edit_text(text=txt.DB_PR, reply_markup=kb.product_kb(call.from_user.id))
+    await call.message.edit_text(text=txt.DB_PR + "\n" + call.data + gpt.ml.gpt(call.data.split('_')[-1]), reply_markup=kb.product_kb(call.from_user.id))
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data.startswith("pred_page_"))
+@dp.callback_query_handler(text="pred_page")
+async def main_callback(call: types.CallbackQuery):
+    await call.message.edit_text(text=txt.MY_PR + "\n" + call.data, reply_markup=kb.my_product_kb(call.from_user.id, int(call.data[-1]) - 1))
+
+@dp.callback_query_handler(lambda callback_query: callback_query.data.startswith("next_page_"))
+@dp.callback_query_handler(text="next_page")
+async def main_callback(call: types.CallbackQuery):
+    print(call.data)
+    await call.message.edit_text(text=txt.MY_PR + "\n" + call.data, reply_markup=kb.my_product_kb(call.from_user.id, int(call.data[-1]) + 1))

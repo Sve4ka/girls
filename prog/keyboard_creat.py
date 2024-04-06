@@ -6,6 +6,7 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 from db.db import get_all_my_shop, get_all_my_product, get_shop_product
 
+PAGE = 6
 def buy_product():  # TODO
     keyboard = InlineKeyboardMarkup(resize_keyboard=True, row_width=2)
     button = InlineKeyboardButton("return", callback_data="buyer")
@@ -75,12 +76,12 @@ def profile_seller_kb():  # TODO
 def create_product_kb():  # TODO
     keyboard = InlineKeyboardMarkup(resize_keyboard=True, row_width=2)
     button1 = InlineKeyboardButton(text="name", callback_data="name_product")
-    button2 = InlineKeyboardButton(text="price", callback_data="price_product")
-    button3 = InlineKeyboardButton(text="count", callback_data="count_product")
-    button4 = InlineKeyboardButton(text="description", callback_data="description_product")
-    button5 = InlineKeyboardButton(text="fruit(tap to vegetable)", callback_data="vegetable_product")
+    # button2 = InlineKeyboardButton(text="price", callback_data="price_product")
+    # button3 = InlineKeyboardButton(text="count", callback_data="count_product")
+    # button4 = InlineKeyboardButton(text="description", callback_data="description_product")
+    button5 = InlineKeyboardButton(text="fruit(tap to vegetable)", callback_data="fr_ve_product")
     button6 = InlineKeyboardButton(text="cancel", callback_data="cancel_product")
-    keyboard.add(button1).add(button2).add(button3).add(button4).add(button5).add(button6)
+    keyboard.add(button1).add(button5).add(button6)
     return keyboard
 
 
@@ -103,10 +104,26 @@ def my_shop_kb(user_id):  # TODO
     return keyboard
 
 
-def my_product_kb(user_id):  # TODO
+def my_product_kb(user_id, page=0):  # TODO
     keyboard = InlineKeyboardMarkup(resize_keyboard=True, row_width=2)
-    for elem in get_all_my_product(user_id):
-        keyboard.add(InlineKeyboardButton(text=elem, callback_data="product_"+elem))
+    prod = get_all_my_product(user_id)
+    if len(prod) < PAGE:
+        for elem in prod:
+            keyboard.add(InlineKeyboardButton(text=elem, callback_data="product_"+elem))
+    else:
+        for i in range(page * PAGE, page * PAGE + PAGE):
+            if len(prod) <= i:
+                break
+            keyboard.add(InlineKeyboardButton(text=prod[i], callback_data="product_"+prod[i]))
+        b1 = InlineKeyboardButton(text="пред стр", callback_data="pred_page_"+str(page))
+        b2 = InlineKeyboardButton(text="след стр", callback_data="next_page_"+str(page))
+        print(page, len(prod), len(prod)/4)
+        if page == 0:
+            keyboard.add(b2)
+        elif len(prod) / PAGE < page + 1:
+            keyboard.add(b1)
+        else:
+            keyboard.add(b1, b2)
     button5 = InlineKeyboardButton(text="return", callback_data="seller")
     keyboard.add(button5)
     return keyboard
